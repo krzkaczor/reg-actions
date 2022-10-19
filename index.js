@@ -81,7 +81,6 @@ exports.createClient = createClient;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createCommentWithoutTarget = exports.createCommentWithTarget = void 0;
-const report_1 = __nccwpck_require__(28269);
 const logger_1 = __nccwpck_require__(65228);
 const isSuccess = (result) => {
     return result.failedItems.length === 0 && result.newItems.length === 0 && result.deletedItems.length === 0;
@@ -89,9 +88,9 @@ const isSuccess = (result) => {
 const badge = (result) => {
     return '';
 };
-const createCommentWithTarget = ({ event, runId, sha: currentHash, targetRun, result, }) => {
+const createCommentWithTarget = ({ event, runId, sha: currentHash, targetRun, result, reportUrl, }) => {
     const [owner, reponame] = event.repository.full_name.split('/');
-    const url = (0, report_1.createReportURL)(owner, reponame, runId);
+    const url = reportUrl;
     logger_1.log.info(`This report URL is ${url}`);
     const targetHash = targetRun.head_sha;
     const currentHashShort = currentHash.slice(0, 7);
@@ -120,9 +119,9 @@ ${successOrFailMessage}
     return body;
 };
 exports.createCommentWithTarget = createCommentWithTarget;
-const createCommentWithoutTarget = ({ event, runId, result }) => {
+const createCommentWithoutTarget = ({ event, runId, result, reportUrl, }) => {
     const [owner, reponame] = event.repository.full_name.split('/');
-    const url = result.reportUrl;
+    const url = reportUrl;
     logger_1.log.info(`This report URL is ${url}`);
     const body = `Failed to find a target artifact.
 All items will be treated as new items and will be used as expected data for the next time.
@@ -586,22 +585,6 @@ exports.workspace = workspace;
 
 /***/ }),
 
-/***/ 28269:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createReportURL = void 0;
-const REPORT_PAGE = 'https://reg-actions.pages.dev/';
-const createReportURL = (owner, reponame, runId) => {
-    return `${REPORT_PAGE}?owner=${owner}&repository=${reponame}&run_id=${runId}`;
-};
-exports.createReportURL = createReportURL;
-
-
-/***/ }),
-
 /***/ 77884:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -725,7 +708,6 @@ const compareAndUpload = (client, config) => __awaiter(void 0, void 0, void 0, f
     let reportUrl = '';
     try {
         yield client.uploadArtifact(files);
-        reportUrl = yield client.uploadWebsite((0, path_1.workspace)());
     }
     catch (e) {
         logger_1.log.error(e);
@@ -760,7 +742,8 @@ const run = (event, runId, sha, client, config) => __awaiter(void 0, void 0, voi
         const result = yield compareAndUpload(client, config);
         // If we have current run, add comment to PR.
         if (runId) {
-            const comment = (0, comment_1.createCommentWithoutTarget)({ event, runId, result });
+            const reportUrl = yield client.uploadWebsite((0, path_1.workspace)());
+            const comment = (0, comment_1.createCommentWithoutTarget)({ event, runId, result, reportUrl });
             yield client.postComment(event.number, comment);
         }
         return;
@@ -769,7 +752,8 @@ const run = (event, runId, sha, client, config) => __awaiter(void 0, void 0, voi
     // Download and copy expected images to workspace.
     yield downloadExpectedImages(client, artifact.id);
     const result = yield compareAndUpload(client, config);
-    const comment = (0, comment_1.createCommentWithTarget)({ event, runId, sha, targetRun, result });
+    const reportUrl = yield client.uploadWebsite((0, path_1.workspace)());
+    const comment = (0, comment_1.createCommentWithTarget)({ event, runId, sha, targetRun, result, reportUrl });
     yield client.postComment(event.number, comment);
 });
 exports.run = run;
