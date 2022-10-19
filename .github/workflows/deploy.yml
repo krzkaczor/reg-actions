@@ -19,6 +19,7 @@ jobs:
           branch: action
           files: |
             README.md
+            ./action.yml
             ./dist/**/*
             ./report/**/*
             ./template/**/*
