@@ -9,6 +9,7 @@ export interface Config {
   thresholdRate: number;
   thresholdPixel: number;
   targetHash: string | null;
+  collectionName: string; // defaults to empty string
 }
 
 const validateGitHubToken = (githubToken: string | undefined) => {
@@ -70,6 +71,7 @@ const validateTargetHash = (h: string | null) => {
 export const getConfig = (): Config => {
   const githubToken = core.getInput('github-token');
   const imageDirectoryPath = core.getInput('image-directory-path');
+  const collectionName = core.getInput('collection-name'); // defaults to empty string
   validateGitHubToken(githubToken);
   validateImageDirPath(imageDirectoryPath);
   const matchingThreshold = getNumberInput('matching-threshold') ?? 0;
@@ -88,5 +90,6 @@ export const getConfig = (): Config => {
     thresholdRate,
     thresholdPixel,
     targetHash,
+    collectionName,
   };
 };

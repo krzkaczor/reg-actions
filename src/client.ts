@@ -25,14 +25,14 @@ export const createClient = (repository: Repository, octokit: Octokit, ghToken: 
       const input = { ...repository, run_id: runId, per_page: 100 };
       return octokit.rest.actions.listWorkflowRunArtifacts(input);
     },
-    uploadArtifact: async (files: string[]) => {
-      const _ = await artifactClient.uploadArtifact(constants.ARTIFACT_NAME, files, workspace());
+    uploadArtifact: async (files: string[], collectionName: string) => {
+      const _ = await artifactClient.uploadArtifact(constants.ARTIFACT_NAME + collectionName, files, workspace());
       return;
     },
-    uploadWebsite: async (dir: string) => {
-      await superArtifactClient.uploadDirectory('reg', dir);
+    uploadWebsite: async (dir: string, collectionName: string) => {
+      await superArtifactClient.uploadDirectory('reg' + collectionName, dir);
 
-      return await superArtifactClient.getPageUrl('reg', 'report/index.html');
+      return await superArtifactClient.getPageUrl('reg' + collectionName, 'report/index.html');
     },
     downloadArtifact: async (artifactId: number) => {
       return octokit.rest.actions.downloadArtifact({

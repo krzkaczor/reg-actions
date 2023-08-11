@@ -46,8 +46,8 @@ const copyImages = (imagePath: string) => {
 };
 
 type UploadClient = {
-  uploadArtifact: (files: string[]) => Promise<void>;
-  uploadWebsite: (dir: string) => Promise<string>;
+  uploadArtifact: (files: string[], collectionName: string) => Promise<void>;
+  uploadWebsite: (dir: string, collectionName: string) => Promise<string>;
 };
 
 // Compare images and upload result.
@@ -64,7 +64,7 @@ const compareAndUpload = async (
 
   let reportUrl: string = '';
   try {
-    await client.uploadArtifact(files);
+    await client.uploadArtifact(files, config.collectionName);
   } catch (e) {
     log.error(e);
     throw new Error('Failed to upload artifact');
@@ -101,7 +101,12 @@ export const run = async (event: Event, runId: number, sha: string, client: Clie
   }
 
   // Find current run and target run and artifact.
-  const runAndArtifact = await findRunAndArtifact({ event, client, targetHash: config.targetHash });
+  const runAndArtifact = await findRunAndArtifact({
+    event,
+    client,
+    targetHash: config.targetHash,
+    collectionName: config.collectionName,
+  });
 
   // If target artifact is not found, upload images.
   if (!runAndArtifact || !runAndArtifact.run || !runAndArtifact.artifact) {
@@ -112,7 +117,7 @@ export const run = async (event: Event, runId: number, sha: string, client: Clie
 
     // If we have current run, add comment to PR.
     if (runId) {
-      const reportUrl = await client.uploadWebsite(workspace());
+      const reportUrl = await client.uploadWebsite(workspace(), config.collectionName);
       const comment = createCommentWithoutTarget({ event, runId, result, reportUrl });
       await client.postComment(event.number, comment);
     }

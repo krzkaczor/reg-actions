@@ -16,7 +16,7 @@ jobs:
       - run: yarn package
       - uses: superactions/branch-push-action@action
         with:
-          branch: action
+          branch: action-v2
           files: |
             README.md
             ./action.yml
