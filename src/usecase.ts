@@ -118,7 +118,13 @@ export const run = async (event: Event, runId: number, sha: string, client: Clie
     // If we have current run, add comment to PR.
     if (runId) {
       const reportUrl = await client.uploadWebsite(workspace(), config.collectionName);
-      const comment = createCommentWithoutTarget({ event, runId, result, reportUrl });
+      const comment = createCommentWithoutTarget({
+        event,
+        runId,
+        result,
+        reportUrl,
+        collectionName: config.collectionName,
+      });
       await client.postComment(event.number, comment);
     }
     return;
@@ -131,8 +137,16 @@ export const run = async (event: Event, runId: number, sha: string, client: Clie
 
   const result = await compareAndUpload(client, config);
 
-  const reportUrl = await client.uploadWebsite(workspace());
-  const comment = createCommentWithTarget({ event, runId, sha, targetRun, result, reportUrl });
+  const reportUrl = await client.uploadWebsite(workspace(), config.collectionName);
+  const comment = createCommentWithTarget({
+    event,
+    runId,
+    sha,
+    targetRun,
+    result,
+    reportUrl,
+    collectionName: config.collectionName,
+  });
 
   await client.postComment(event.number, comment);
 };
