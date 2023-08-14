@@ -63,8 +63,12 @@ const createClient = (repository, octokit, ghToken) => {
         downloadArtifact: (artifactId) => __awaiter(void 0, void 0, void 0, function* () {
             return octokit.rest.actions.downloadArtifact(Object.assign(Object.assign({}, repository), { artifact_id: artifactId, archive_format: 'zip' }));
         }),
-        postComment: (_issueNumber, comment) => __awaiter(void 0, void 0, void 0, function* () {
-            yield (0, comment_1.createCommentOrUpdate)({ message: comment, githubToken: ghToken, uniqueAppId: 'vis-reg-storybook' });
+        postComment: (_issueNumber, comment, collectionName) => __awaiter(void 0, void 0, void 0, function* () {
+            yield (0, comment_1.createCommentOrUpdate)({
+                message: comment,
+                githubToken: ghToken,
+                uniqueAppId: `vis-reg-storybook-${collectionName}`,
+            });
             return;
         }),
     };
@@ -764,7 +768,7 @@ const run = (event, runId, sha, client, config) => __awaiter(void 0, void 0, voi
                 reportUrl,
                 collectionName: config.collectionName,
             });
-            yield client.postComment(event.number, comment);
+            yield client.postComment(event.number, comment, config.collectionName);
         }
         return;
     }
@@ -782,7 +786,7 @@ const run = (event, runId, sha, client, config) => __awaiter(void 0, void 0, voi
         reportUrl,
         collectionName: config.collectionName,
     });
-    yield client.postComment(event.number, comment);
+    yield client.postComment(event.number, comment, config.collectionName);
 });
 exports.run = run;
 
