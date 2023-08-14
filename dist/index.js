@@ -99,7 +99,7 @@ const createCommentWithTarget = ({ event, runId, sha: currentHash, targetRun, re
         ? `✅ No changes to already existing images detected. All good!
     `
         : `🟨 Visual changes detected. Please review [the report](${url})!`;
-    const body = `# [🖼️ Visual Regression Report ${collectionName ? `for ${collectionName}` : ''}](${url})
+    const body = `## [🖼️ Visual Regression Report ${collectionName ? `for ${collectionName}` : ''}](${url})
 
   ${successOrFailMessage}
   
@@ -116,7 +116,7 @@ If you would like to check difference, please check [here](https://github.com/${
 exports.createCommentWithTarget = createCommentWithTarget;
 const createCommentWithoutTarget = ({ event, runId, result, reportUrl: url, collectionName, }) => {
     logger_1.log.info(`This report URL is ${url}`);
-    const body = `# [🖼️ Visual Regression Report ${collectionName ? `for ${collectionName}` : ''}](${url})
+    const body = `## [🖼️ Visual Regression Report ${collectionName ? `for ${collectionName}` : ''}](${url})
   
   Failed to find a target artifact. All items will be treated as new items and will be used as expected data for the next time.
 
