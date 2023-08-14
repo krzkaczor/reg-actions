@@ -83,7 +83,7 @@ const init = async (config: Config) => {
 };
 
 type CommentClient = {
-  postComment: (issueNumber: number, comment: string) => Promise<void>;
+  postComment: (issueNumber: number, comment: string, collectionName: string) => Promise<void>;
 };
 
 type Client = CommentClient & DownloadClient & UploadClient & RunClient;
@@ -125,7 +125,7 @@ export const run = async (event: Event, runId: number, sha: string, client: Clie
         reportUrl,
         collectionName: config.collectionName,
       });
-      await client.postComment(event.number, comment);
+      await client.postComment(event.number, comment, config.collectionName);
     }
     return;
   }
@@ -148,5 +148,5 @@ export const run = async (event: Event, runId: number, sha: string, client: Clie
     collectionName: config.collectionName,
   });
 
-  await client.postComment(event.number, comment);
+  await client.postComment(event.number, comment, config.collectionName);
 };

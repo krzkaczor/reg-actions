@@ -41,8 +41,12 @@ export const createClient = (repository: Repository, octokit: Octokit, ghToken: 
         archive_format: 'zip',
       });
     },
-    postComment: async (_issueNumber: number, comment: string) => {
-      await createCommentOrUpdate({ message: comment, githubToken: ghToken, uniqueAppId: 'vis-reg-storybook' });
+    postComment: async (_issueNumber: number, comment: string, collectionName: string) => {
+      await createCommentOrUpdate({
+        message: comment,
+        githubToken: ghToken,
+        uniqueAppId: `vis-reg-storybook-${collectionName}`,
+      });
       return;
     },
   };
