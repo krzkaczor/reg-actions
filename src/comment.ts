@@ -47,7 +47,7 @@ export const createCommentWithTarget = ({
     `
     : `🟨 Visual changes detected. Please review [the report](${url})!`;
 
-  const body = `# [🖼️ Visual Regression Report ${collectionName ? `for ${collectionName}` : ''}](${url})
+  const body = `## [🖼️ Visual Regression Report ${collectionName ? `for ${collectionName}` : ''}](${url})
 
   ${successOrFailMessage}
   
@@ -72,7 +72,7 @@ export const createCommentWithoutTarget = ({
 }: CreateCommentWithoutTargetInput): string => {
   log.info(`This report URL is ${url}`);
 
-  const body = `# [🖼️ Visual Regression Report ${collectionName ? `for ${collectionName}` : ''}](${url})
+  const body = `## [🖼️ Visual Regression Report ${collectionName ? `for ${collectionName}` : ''}](${url})
   
   Failed to find a target artifact. All items will be treated as new items and will be used as expected data for the next time.
 
