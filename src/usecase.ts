@@ -46,8 +46,8 @@ const copyImages = (imagePath: string) => {
 };
 
 type UploadClient = {
-  uploadArtifact: (files: string[]) => Promise<void>;
-  uploadWebsite: (dir: string) => Promise<string>;
+  uploadArtifact: (files: string[], collectionName: string) => Promise<void>;
+  uploadWebsite: (dir: string, collectionName: string) => Promise<string>;
 };
 
 // Compare images and upload result.
@@ -64,7 +64,7 @@ const compareAndUpload = async (
 
   let reportUrl: string = '';
   try {
-    await client.uploadArtifact(files);
+    await client.uploadArtifact(files, config.collectionName);
   } catch (e) {
     log.error(e);
     throw new Error('Failed to upload artifact');
@@ -83,7 +83,7 @@ const init = async (config: Config) => {
 };
 
 type CommentClient = {
-  postComment: (issueNumber: number, comment: string) => Promise<void>;
+  postComment: (issueNumber: number, comment: string, collectionName: string) => Promise<void>;
 };
 
 type Client = CommentClient & DownloadClient & UploadClient & RunClient;
@@ -101,7 +101,12 @@ export const run = async (event: Event, runId: number, sha: string, client: Clie
   }
 
   // Find current run and target run and artifact.
-  const runAndArtifact = await findRunAndArtifact({ event, client, targetHash: config.targetHash });
+  const runAndArtifact = await findRunAndArtifact({
+    event,
+    client,
+    targetHash: config.targetHash,
+    collectionName: config.collectionName,
+  });
 
   // If target artifact is not found, upload images.
   if (!runAndArtifact || !runAndArtifact.run || !runAndArtifact.artifact) {
@@ -112,9 +117,15 @@ export const run = async (event: Event, runId: number, sha: string, client: Clie
 
     // If we have current run, add comment to PR.
     if (runId) {
-      const reportUrl = await client.uploadWebsite(workspace());
-      const comment = createCommentWithoutTarget({ event, runId, result, reportUrl });
-      await client.postComment(event.number, comment);
+      const reportUrl = await client.uploadWebsite(workspace(), config.collectionName);
+      const comment = createCommentWithoutTarget({
+        event,
+        runId,
+        result,
+        reportUrl,
+        collectionName: config.collectionName,
+      });
+      await client.postComment(event.number, comment, config.collectionName);
     }
     return;
   }
@@ -126,8 +137,16 @@ export const run = async (event: Event, runId: number, sha: string, client: Clie
 
   const result = await compareAndUpload(client, config);
 
-  const reportUrl = await client.uploadWebsite(workspace());
-  const comment = createCommentWithTarget({ event, runId, sha, targetRun, result, reportUrl });
+  const reportUrl = await client.uploadWebsite(workspace(), config.collectionName);
+  const comment = createCommentWithTarget({
+    event,
+    runId,
+    sha,
+    targetRun,
+    result,
+    reportUrl,
+    collectionName: config.collectionName,
+  });
 
-  await client.postComment(event.number, comment);
+  await client.postComment(event.number, comment, config.collectionName);
 };
