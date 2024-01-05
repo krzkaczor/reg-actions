@@ -26,6 +26,9 @@ inputs:
   target-hash:
     description: "The commit hash to be compared."
     required: false
+  collection-name:
+    description: "Scope of the comparison. For example e2e or storybook."
+    required: false
 runs:
   using: "node16"
   main: "./dist/index.js"
